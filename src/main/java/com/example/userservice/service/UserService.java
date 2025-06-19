@@ -1,6 +1,7 @@
 package com.example.userservice.service;
 
 import com.example.userservice.model.User;
+import com.example.userservice.model.UserRequest;
 import com.example.userservice.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,11 +23,21 @@ public class UserService {
     }
 
     public User createUser(User user) {
+
         return userRepository.save(user);
     }
 
+    public User createUser(UserRequest userRequest) {
+
+        User user = new User();
+        user.setEmail(userRequest.email());
+        user.setName(userRequest.name());
+        return userRepository.save(user);
+    }
+
+
     public Optional<User> updateUser(Long id, User userDetails) {
-        return userRepository.findById(id).map(user -> {
+        return this.getUserById(id).map(user -> {
             user.setName(userDetails.getName());
             user.setEmail(userDetails.getEmail());
             return userRepository.save(user);
@@ -34,9 +45,12 @@ public class UserService {
     }
 
     public boolean deleteUser(Long id) {
-        return userRepository.findById(id).map(user -> {
-            userRepository.delete(user);
-            return true;
-        }).orElse(false);
+        return this.getUserById(id).map(
+                user -> {
+                    userRepository.delete(user);
+                    return true;
+                }).
+                orElse(false);
+
     }
 }
